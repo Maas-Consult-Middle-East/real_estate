@@ -20,7 +20,7 @@ def run_daily_billing():
         filters={"lease_status": "Active", "docstatus": 1},
         fields=["name", "property_unit", "tenant", "monthly_rent",
                 "security_deposit", "payment_due_day", "grace_period_days",
-                "late_fee_percent", "vat_percent", "lease_start_date",
+                "late_fee_percent", "lease_start_date",
                 "lease_end_date", "escalation_percent"],
     )
     for lease in active_leases:

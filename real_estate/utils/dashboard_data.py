@@ -63,6 +63,7 @@ def _get_expiring_leases(today):
             "lease_end_date": ("between", [today, add_days(today, 60)]),
         },
         fields=["name", "property_unit", "tenant", "lease_end_date"],
+        order_by="lease_end_date asc, name asc",
         limit=10,
     )
     for l in leases:

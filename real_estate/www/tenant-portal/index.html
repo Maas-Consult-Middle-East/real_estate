@@ -27,7 +27,7 @@
         <tbody>
           {% for lease in leases %}
           <tr>
-            <td><a href="/app/lease-agreement/{{ lease.name }}">{{ lease.name }}</a></td>
+            <td><a href="{{ lease.desk_url | e }}">{{ lease.name }}</a></td>
             <td>{{ lease.property_unit }}</td>
             <td>{{ frappe.format(lease.lease_start_date, {'fieldtype': 'Date'}) }}</td>
             <td>{{ frappe.format(lease.lease_end_date, {'fieldtype': 'Date'}) }}</td>

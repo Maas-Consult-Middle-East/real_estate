@@ -126,7 +126,7 @@ function expiring_leases_table(leases) {
 	}
 	const rows = leases.map(l => `
 		<tr>
-			<td><a href="/app/lease-agreement/${l.name}">${l.name}</a></td>
+			<td>${frappe.utils.get_form_link("Lease Agreement", l.name, true, frappe.utils.escape_html(l.name))}</td>
 			<td>${l.property_unit}</td>
 			<td>${l.tenant}</td>
 			<td><span class="badge badge-${l.days_left <= 15 ? 'danger' : 'warning'}">${l.days_left}d</span></td>

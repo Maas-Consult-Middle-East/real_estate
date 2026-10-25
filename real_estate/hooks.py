@@ -1,3 +1,5 @@
+from real_estate.compat import get_desk_route
+
 app_name = "real_estate"
 app_title = "Real Estate"
 app_publisher = "Real Estate Module"
@@ -176,3 +178,16 @@ override_whitelisted_methods = {}
 
 # ─── After Migrate ────────────────────────────────────────────────────────────
 after_migrate = ["real_estate.setup.install.after_migrate"]
+
+# Run the same idempotent setup for fresh installs and upgrades.
+before_install = "real_estate.compat.validate_versions"
+before_migrate = "real_estate.compat.validate_versions"
+after_install = "real_estate.setup.install.after_migrate"
+
+app_home = get_desk_route()
+add_to_apps_screen = [{
+    "name": app_name,
+    "title": app_title,
+    "logo": "/assets/real_estate/images/real-estate.svg",
+    "route": app_home,
+}]

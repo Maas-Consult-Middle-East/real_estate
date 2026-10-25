@@ -1,6 +1,6 @@
 # Real Estate — Comprehensive Property Management for ERPNext
 
-A production-ready Frappe v15/v16 app for end-to-end real estate and property portfolio management, fully integrated with ERPNext. Covers the complete lifecycle from property onboarding and tenant leasing through automated billing, maintenance tracking, sales, and AI-powered portfolio analytics.
+A Frappe v15/v16 app for end-to-end real estate and property portfolio management, fully integrated with ERPNext. Covers the complete lifecycle from property onboarding and tenant leasing through automated billing, maintenance tracking, sales, and AI-powered portfolio analytics.
 
 
 <img width="862" height="602" alt="Screenshot from 2026-06-17 03-48-24" src="https://github.com/user-attachments/assets/f4739a5d-083d-46e3-8598-da12d75b9fa9" />
@@ -82,10 +82,18 @@ A production-ready Frappe v15/v16 app for end-to-end real estate and property po
 
 ## Requirements
 
-* Frappe Framework v15 or v16
-* ERPNext v15 or v16
-* Python 3.10 or higher
-* Node.js 18 or higher (for asset build)
+Use matching Frappe and ERPNext major versions on the same bench:
+
+| Frappe | ERPNext | Python | Node.js |
+| --- | --- | --- | --- |
+| v15 | v15 | 3.10+ | 18+ |
+| v16 | v16 | 3.14+ | 24+ |
+
+The same app branch supports both versions. Installation and migration reject
+unsupported or mixed major versions. Follow the runtime requirements of the
+specific framework release you install; see the
+[Frappe v16 migration guide](https://github.com/frappe/frappe/wiki/Migrating-to-version-16).
+
 * `anthropic` Python package (required only for AI features)
 
 ---
@@ -117,7 +125,7 @@ bench --site yoursite.com install-app real_estate
 bench --site yoursite.com migrate
 ```
 
-This creates all 22 DocType tables, registers the 4 roles, creates ERPNext billing items, applies tenant custom fields on the Customer DocType, and creates the Real Estate workspace.
+Installation and migration register the roles, ensure billing items and tenant custom fields exist, and create the Real Estate workspace if missing. Existing workspaces are preserved. When upgrading from v15 to v16, upgrade Frappe and ERPNext together, then run migration and rebuild assets.
 
 ### Step 5 — Build frontend assets
 
@@ -394,7 +402,7 @@ The tenant portal is a web page available at `yoursite.com/tenant-portal` for an
 
 ## Portfolio Dashboard
 
-Access the dashboard from the Frappe sidebar under Real Estate → Real Estate Dashboard, or directly at `yoursite.com/app/real-estate-dashboard`.
+Access the dashboard from the Frappe sidebar under Real Estate → Real Estate Dashboard, or directly at `/app/real-estate-dashboard` on v15 and `/desk/real-estate-dashboard` on v16.
 
 The dashboard shows:
 * **KPI Cards**: Total properties, occupied units, vacant units, monthly revenue collected, overdue invoices
@@ -512,6 +520,16 @@ Returns KPIs, occupancy breakdown, monthly revenue, expiring leases, and mainten
 ---
 
 ## Development
+
+Run the site-independent compatibility regression suite inside either a v15 or
+v16 bench (it checks the actual installed framework versions and controller imports):
+
+```bash
+./env/bin/python -m unittest real_estate.tests.test_compatibility -v
+```
+
+These checks do not replace testing installation, migration, and billing on a
+disposable site before deploying an upgrade.
 
 ### Running tests
 

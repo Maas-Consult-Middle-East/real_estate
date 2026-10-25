@@ -1,7 +1,7 @@
 """Tenant portal backend — data handler for /tenant-portal."""
 import frappe
 from frappe import _
-from frappe.utils import nowdate
+from frappe.utils import nowdate, get_url_to_form
 
 
 def get_context(context):
@@ -17,6 +17,8 @@ def get_context(context):
 
     context.tenant = tenant
     context.leases = _get_active_leases(tenant)
+    for lease in context.leases:
+        lease.desk_url = get_url_to_form("Lease Agreement", lease.name)
     context.invoices = _get_invoices(tenant)
     context.maintenance_requests = _get_maintenance_requests(tenant)
     context.no_cache = 1

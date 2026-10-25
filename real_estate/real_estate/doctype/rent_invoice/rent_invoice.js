@@ -19,11 +19,10 @@ frappe.ui.form.on('Rent Invoice', {
 	lease(frm) {
 		if (frm.doc.lease) {
 			frappe.db.get_value('Lease Agreement', frm.doc.lease,
-				['tenant', 'monthly_rent', 'vat_percent', 'late_fee_percent'],
+				['tenant', 'monthly_rent'],
 				r => {
 					frm.set_value('tenant', r.tenant);
 					frm.set_value('base_rent', r.monthly_rent);
-					if (r.vat_percent) frm.set_value('vat_percent', r.vat_percent);
 				}
 			);
 		}

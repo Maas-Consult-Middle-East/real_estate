@@ -6,6 +6,7 @@ def after_migrate():
     _create_roles()
     _create_property_item()
     _create_tenant_custom_fields()
+    _create_workspace()
 
 
 def _create_roles():
@@ -70,44 +71,40 @@ def _create_tenant_custom_fields():
 
 
 def _create_workspace():
-    """Create Real Estate workspace if it doesn't exist."""
+    """Create navigation supported by both v15 and v16; preserve user changes."""
+    import json
+
     if frappe.db.exists("Workspace", "Real Estate"):
         return
-    try:
-        import json
-        content = json.dumps([
-            {"id": "re-props", "type": "card", "data": {"card_name": "Properties", "col": 4}},
-            {"id": "re-leasing", "type": "card", "data": {"card_name": "Leasing", "col": 4}},
-            {"id": "re-ops", "type": "card", "data": {"card_name": "Operations", "col": 4}},
-        ])
-        ws = frappe.new_doc("Workspace")
-        ws.name = "Real Estate"
-        ws.label = "Real Estate"
-        ws.title = "Real Estate"
-        ws.module = "Real Estate"
-        ws.icon = "fa fa-home"
-        ws.type = "module"
-        ws.is_standard = 1
-        ws.public = 1
-        ws.content = content
-        for link in [
-            ("Property", "Property"), ("Property Unit", "Property Unit"),
-            ("Lease Agreement", "Lease Agreement"), ("Rent Invoice", "Rent Invoice"),
-            ("Maintenance Request", "Maintenance Request"), ("Property Inspection", "Property Inspection"),
-            ("Owner Statement", "Owner Statement"), ("Property Listing", "Property Listing"),
-            ("Visitor Lead Inquiry", "Visitor Lead Inquiry"), ("Sale Agreement", "Sale Agreement"),
-            ("Agent", "Agent"), ("Security Deposit Ledger", "Security Deposit Ledger"),
-            ("Utility Rate Card", "Utility Rate Card"),
-        ]:
+    groups = {
+        "Properties": ["Property", "Property Unit", "Property Listing", "Agent"],
+        "Leasing": ["Lease Agreement", "Rent Invoice", "Security Deposit Ledger",
+                    "Visitor Lead Inquiry", "Sale Agreement"],
+        "Operations": ["Maintenance Request", "Property Inspection", "Owner Statement",
+                       "Utility Rate Card"],
+    }
+    ws = frappe.new_doc("Workspace")
+    ws.label = ws.title = "Real Estate"
+    ws.module = "Real Estate"
+    ws.icon = "home"
+    ws.public = 1
+    ws.content = json.dumps([
+        {"id": f"re-{index}", "type": "card", "data": {"card_name": title, "col": 4}}
+        for index, title in enumerate(groups)
+    ])
+    for title, doctypes in groups.items():
+        ws.append("links", {"type": "Card Break", "label": title})
+        for doctype in doctypes:
             ws.append("links", {
-                "type": "Link", "label": link[0], "link_to": link[1],
-                "link_type": "DocType", "onboard": 0, "is_query_report": 0
+                "type": "Link", "label": doctype, "link_to": doctype,
+                "link_type": "DocType",
             })
-        ws.flags.ignore_permissions = True
-        ws.insert()
-        frappe.db.commit()
-    except Exception as e:
-        frappe.log_error(f"Workspace creation failed: {e}", "Real Estate Setup")
+        if title == "Operations":
+            ws.append("links", {
+                "type": "Link", "label": "Real Estate Dashboard",
+                "link_to": "real-estate-dashboard", "link_type": "Page",
+            })
+    ws.insert(ignore_permissions=True)
 
 
 def _create_property_item():
